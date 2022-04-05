@@ -1,16 +1,41 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { takeEvery, put, delay } from 'redux-saga/effects';
+import {
+  takeEvery, put, delay, call,
+} from 'redux-saga/effects';
 import { isEmpty } from 'lodash';
+import axios from 'axios';
 import TASKS_ACTIONS from './actionTypes';
+import ENDPOINTS from '../../constants/endpoints';
+
+const plaidTokenRequestData = {
+  client_id: '624c2495d1d9c80019aff378',
+  secret: '4e69d565bf731a4ced01c69b2ca9d6',
+  user: { client_user_id: '89348934893485493' },
+  client_name: 'TEST_APP',
+  products: ['auth'],
+  country_codes: ['US'],
+  language: 'en',
+  account_filters: {
+    depository: {
+      account_subtypes: ['checking'],
+    },
+  },
+};
+
 // Sagas
 function* getAllUserInfo(action) {
   try {
-    yield delay(3000);
     const taskList = yield AsyncStorage.getItem('tasks');
-    yield put({
-      type: TASKS_ACTIONS.GET_TASKS.SUCCESS,
-      taskList: !isEmpty(taskList) ? JSON.parse(taskList) : [],
-    });
+
+    const response = yield call(axios.post, ENDPOINTS.PLAID_LINK_TOKEN_CREATE, plaidTokenRequestData);
+
+    if (response.status === 200) {
+      yield put({
+        type: TASKS_ACTIONS.GET_TASKS.SUCCESS,
+        taskList: !isEmpty(taskList) ? JSON.parse(taskList) : [],
+        plaidLinkToken: response.data.link_token,
+      });
+    } else { throw response.status; }
   } catch (err) {
     yield put({
       type: TASKS_ACTIONS.GET_TASKS.ERROR,
@@ -29,9 +54,9 @@ function* addTask(action) {
       task,
     });
 
-    // Save to async storage ( async immitation of external API, I know about redux-persist)
+    // Save to async storage ( async imitation of external API, I know about redux-persist)
     let taskList = yield AsyncStorage.getItem('tasks');
-    if (!isEmpty(taskList)){
+    if (!isEmpty(taskList)) {
       taskList = JSON.parse(taskList);
       taskList = [...taskList, task];
     } else {
@@ -96,7 +121,6 @@ function* removeTask(action) {
     yield put({
       type: TASKS_ACTIONS.REMOVE_TASK.SUCCESS,
     });
-
   } catch (err) {
     yield put({
       type: TASKS_ACTIONS.ADD_TASK.ERROR,
@@ -111,4 +135,5 @@ function* handler() {
   yield takeEvery(TASKS_ACTIONS.EDIT_TASK.REQUEST, editTask);
   yield takeEvery(TASKS_ACTIONS.REMOVE_TASK.REQUEST, removeTask);
 }
+
 export { handler };

@@ -17,10 +17,16 @@ export default StyleSheet.create({
     padding: 10,
     borderRadius: 50,
   },
+  plaidButton: {
+    backgroundColor: Color.yellowMain,
+    padding: 10,
+    borderRadius: 50,
+  },
   header: {
     height: 60,
+    flexDirection: 'row',
     width: '100%',
-    justifyContent: 'flex-end',
+    justifyContent: 'space-between',
     alignItems: 'flex-end',
   },
 });

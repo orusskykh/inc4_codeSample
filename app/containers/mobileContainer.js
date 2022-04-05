@@ -7,6 +7,7 @@ import { NavigationContainer } from '@react-navigation/native';
 import HomeScreen from '../screens/Home/Home';
 import EditModal from '../screens/EditModal/EditModal';
 import SplashScreen from '../screens/Splash/Splash';
+import ScanModal from '../screens/ScanModal/ScanModal';
 import { getTasks } from '../models/tasks/actions';
 
 const Stack = createStackNavigator();
@@ -44,6 +45,17 @@ const mobileContainer = ({ isLoading, getTasks }) => {
           <Stack.Screen
             name="EditModal"
             component={EditModal}
+            options={{
+              headerShown: false,
+              cardStyle: {
+                backgroundColor: 'transparent',
+                opacity: 0.99,
+              },
+            }}
+          />
+          <Stack.Screen
+            name="ScanModal"
+            component={ScanModal}
             options={{
               headerShown: false,
               cardStyle: {

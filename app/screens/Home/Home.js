@@ -3,16 +3,17 @@ import {
   Button, View, TouchableOpacity, Text, TextInput, FlatList,
 } from 'react-native';
 import { connect } from 'react-redux';
-import ListItem from '../../components/ListItem/ListItem';
+import {PlaidLink, LinkSuccess, LinkExit} from 'react-native-plaid-link-sdk'
 
+import ListItem from '../../components/ListItem/ListItem';
 import Plus from '../../assets/images/plus.svg';
 import s from './styles';
 import { editTask, removeTask, setEditTask } from '../../models/tasks/actions';
 import Edit from '../../assets/images/edit.svg';
-
+import IdCard from '../../assets/images/id-card.svg';
 const mapStateToProps = ({ task }) => {
-  const { taskList } = task;
-  return { taskList };
+  const { taskList, plaidLinkToken} = task;
+  return { taskList, plaidLinkToken };
 };
 
 const mapDispatchToProps = (dispatch) => ({
@@ -22,7 +23,7 @@ const mapDispatchToProps = (dispatch) => ({
 });
 
 const Home = function ({
-  taskList, editTask, removeTask, setEditTask, navigation,
+  taskList, plaidLinkToken, editTask, removeTask, setEditTask, navigation,
 }) {
   const [isEdit, setIsEdit] = useState(false);
 
@@ -41,9 +42,32 @@ const Home = function ({
     navigation.navigate('EditModal');
   };
 
+
   return (
     <View style={s.mainScreenContainer}>
       <View style={s.header}>
+        <TouchableOpacity onPress={() => navigation.navigate('ScanModal')}>
+          <IdCard width={40} height={40} />
+        </TouchableOpacity>
+
+        {!!plaidLinkToken && <PlaidLink
+          tokenConfig={{
+            token: plaidLinkToken,
+          }}
+          onSuccess={(success: LinkSuccess) => {
+            console.log(success);
+          }}
+          onExit={(exit: LinkExit) => {
+            console.log(exit);
+          }}
+
+        >
+          <View style={s.plaidButton}>
+            <Text style={{fontSize: 22}}>PLAID</Text>
+          </View>
+        </PlaidLink> }
+
+
         <TouchableOpacity onPress={() => setIsEdit(!isEdit)}>
           <Edit width={40} height={40} />
         </TouchableOpacity>
